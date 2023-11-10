@@ -9,8 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="deps\**" />
+    <Compile Remove="Documents\**" />
     <Compile Remove="Recurses\**" />
+    <EmbeddedResource Remove="deps\**" />
+    <EmbeddedResource Remove="Documents\**" />
     <EmbeddedResource Remove="Recurses\**" />
+    <None Remove="deps\**" />
+    <None Remove="Documents\**" />
     <None Remove="Recurses\**" />
   </ItemGroup>
 
@@ -25,7 +31,7 @@
 
   <ItemGroup>
     <Reference Include="StunTools">
-      <HintPath>..\StunTools\obj\Release\net6.0\StunTools.dll</HintPath>
+      <HintPath>deps\StunTools.dll</HintPath>
     </Reference>
   </ItemGroup>
 
