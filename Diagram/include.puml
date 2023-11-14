@@ -1,0 +1,67 @@
+@startuml GFS_Spiel
+!include .\\LobbyScreen.puml
+!include .\\MainGame.puml
+!include .\\Program.puml
+!include .\\SelectScreen.puml
+!include .\\ShipGrid.puml
+!include .\\MainGameScripts\Field.puml
+!include .\\MainGameScripts\FieldHandler.puml
+!include .\\MainGameScripts\PlayingField.puml
+!include .\\MainGameScripts\EnemyPlayers\ComputerPlayer.puml
+!include .\\MainGameScripts\EnemyPlayers\EnemyPlayer.puml
+!include .\\MainGameScripts\EnemyPlayers\NetworkPlayer.puml
+
+package Network {
+    class TcpClient
+    class TcpSocket
+}
+Program --> "1" SelectScreen : use
+
+skinparam groupInheritance 3
+Form <|-- LobbyScreen
+Form <|-- MainGame
+Form <|-- SelectScreen
+
+LobbyScreen --> "1" ShipGrid : "- shipGrid" 
+LobbyScreen --> "1" TcpSocket : "- Socket?"
+LobbyScreen -->"1" MainGame : use
+LobbyScreen --> Theme:use
+
+MainGame --> "1" FieldHandler :"- fieldHandler"
+MainGame --> "1..*" ShipGridEntry : use
+MainGame --> Theme:use
+ 
+SelectScreen --> "1" LobbyScreen:use
+SelectScreen --> Theme:use
+
+ShipGrid::Ships --> "1..*" ShipGridEntry
+
+TcpClient "1" <-- LobbyScreen : "- Client?"
+TcpClient <-- MainGame : use
+TcpClient <-- FieldHandler : use
+TcpClient <-- NetworkPlayer : "- conenction"
+
+FieldHandler --> "1" Field : "- playerField"
+FieldHandler --> "1" Field : "- enemyField"
+FieldHandler --> MainGame :"- maingame"
+FieldHandler --> "1" ShipGrid : "- playerShipGrid"
+FieldHandler --> "1" ShipGrid : "- enemyShipGrid"
+FieldHandler --> "1" EnemyPlayer : "- enemyPlayer"
+
+EnemyPlayer --> FieldHandler : "- <<readonly>> fieldHandler"
+
+ComputerPlayer --> "1" PlayingField : "- playerPlayingField"
+ComputerPlayer --> "1" PlayingField : "- enemyPlayingField"
+ComputerPlayer --> "1" Tile : "- lastTile"
+
+Field --> "1" PlayingField : "+ PlayingField <<get>>"
+Field --> "1" Tile : "- lastHitTile"
+
+PlayingField --> "1..*" Tile : "+ Tiles <<get>>"
+PlayingField --> "0..*" Link : "+ <<readonly>> Links"
+
+Link --> "0..*" Tile : "+ Tiles <<get>>"
+
+Tile --> Link : "+ Link <<get>> <<set>>"
+Tile --> PlayingField : "- field"
+@enduml

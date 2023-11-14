@@ -1,0 +1,16 @@
+@startuml
+class NetworkPlayer {
+    - isEnemyReady : bool = false
+    + NetworkPlayer(fieldHandler:FieldHandler, _connection:TcpClient)
+    - callback(message:StunTools.Message) : void
+    - <<async>> onPointMessage(message:StunTools.Message) : Task
+    - <<async>> WaitHitTypeMessage() : Task<HitType?>
+    + <<override>> <<async>> OnEnemyFieldHit(point:Point) : Task<HitType>
+    + <<override>> <<async>> OnPlayerReady() : void
+    + <<override>> OnLoad() : void
+    + <<override>> <<async>> OnEnemyFieldHover(sender:object?, point:Point) : void
+    + <<override>> <<async>> OnEnemyFieldUnHover(sender:object?, point:Point) : void
+    + <<override>> <<async>> GetNonhitShips(l:IEnumerable<Point>) : Task<IEnumerable<Point>>
+}
+EnemyPlayer <|-- NetworkPlayer
+@enduml

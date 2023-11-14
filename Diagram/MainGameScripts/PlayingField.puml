@@ -1,0 +1,36 @@
+@startuml
+class PlayingField {
+    + <<readonly>> Size : Size
+    + PlayingField(_size:Size)
+    + {static} Random(size:Size, ships:IEnumerable<int>, maxAttempts:int) : PlayingField?
+    + DistancesToNext(p:Point) : int[]
+    + GetNonhitShipTiles() : IEnumerable<Tile>
+    - randomEmptyTile(random:Random) : Tile?
+    - genTiles(size:Size) : void
+    + Update(columnIndex:int, rowIndex:int) : bool?
+    + Update(tile:Tile) : bool?
+    + Clone() : PlayingField
+    + Random(ships:IEnumerable<int>, maxAttempts:int) : PlayingField?
+    - TryPlaceShips(shipsRemaining:IEnumerable<int>, board:PlayingField, maxAttempts:int, random:Random) : PlayingField?
+    + AllShipsHit() : bool
+}
+class Tile {
+    + <<readonly>> Position : Point
+    + IsHit : bool <<get>>
+    + Tile(x:int, y:int, pField:PlayingField, link:Link?, isHit:bool)
+    + Hit() : void
+    + GetNeighbours() : IEnumerable<Tile>
+    + CountNeighbours() : int
+    + NeighbourLinks() : IEnumerable<Link>
+}
+class Link {
+    + Length : int <<get>>
+    + Vertical : bool? <<get>>
+    + IsHit : bool <<get>>
+    + HitCount : int <<get>>
+    + Link()
+    + Add(tile:Tile) : void
+    + Remove(tile:Tile) : void
+    - isVertical() : bool?
+}
+@enduml

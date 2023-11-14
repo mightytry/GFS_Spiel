@@ -1,0 +1,14 @@
+@startuml
+class Program <<static>> {
+    {static} - Main() : void
+}
+class Theme <<static>> {
+    {static} - DarkModeColors : Color[]
+    {static} - LightModeColors : Color[]
+    {static} - DarkMode : bool = true
+    + {static} ChangeMode() : void
+    + {static} IsDarkMode() : bool
+    + {static} GetThemeColor(type:Color) : Color
+    + {static} RefreshTheme(control:Control) : void
+}
+@enduml

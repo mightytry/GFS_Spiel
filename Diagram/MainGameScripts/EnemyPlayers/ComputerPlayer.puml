@@ -1,0 +1,14 @@
+@startuml
+class ComputerPlayer {
+    - lastTileShipSunken : bool
+    - random : Random
+    + ComputerPlayer(_fieldHandler:FieldHandler)
+    - hitPlayer(t:Tile) : void
+    + <<async>> Move() : void
+    + <<override>> OnPlayerReady() : void
+    + <<override>> OnLoad() : void
+    + <<override>> OnEnemyFieldHit(point:Point) : Task<HitType>
+    + <<override>> GetNonhitShips(leftShips:IEnumerable<Point>) : Task<IEnumerable<Point>>
+}
+EnemyPlayer <|-- ComputerPlayer
+@enduml

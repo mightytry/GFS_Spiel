@@ -1,0 +1,34 @@
+@startuml
+class Field {
+    + FieldGrid : DataGridView <<get>>
+    + FieldSize : Size <<get>>
+    +  <<event>> HoverEvent : HoverEventHandler? 
+    +  <<event>> UnHoverEvent : UnHoverEventHandler? 
+    - cancellationTokenSource : CancellationTokenSource
+    + Field(dataGridView:DataGridView, size:Size?)
+    + CancelBlink() : void
+    - <<async>> blinkLastHit() : void
+    + DoAllowUserinput(value:bool) : void
+    - mouseEnter(sender:object?, e:DataGridViewCellEventArgs) : void
+    - mouseClick(sender:object?, e:DataGridViewCellMouseEventArgs) : void
+    - mouseLeave(sender:object?, e:DataGridViewCellEventArgs) : void
+    + AddSelection(columnIndex:int, rowIndex:int) : void
+    + RemoveSelection(columnIndex:int, rowIndex:int) : void
+    + ResetSelection() : void
+    - genField(sizex:int, sizey:int) : void
+    + Update(columnIndex:int, rowIndex:int) : bool
+    + ShipSunken(tile:Tile) : void
+    - updateColor(columnIndex:int, rowIndex:int, isShip:bool?, isSunken:bool) : void
+    - updateText(columnIndex:int, rowIndex:int, isHit:bool) : void
+    + Hit(columnIndex:int, rowIndex:int) : HitType?
+    + Random(ships:IEnumerable<int>, useCurrent:bool) : bool
+    + Clear() : void
+}
+enum HitType {
+    HIT,
+    MISS,
+    SUNKEN,
+    ENDGAME,
+}
+Field +-- HitType
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+class MainGame <<partial>> {
+    + MainGame(connection:TcpClient?, shipPlacementConfig:ShipGridEntry[])
+    + Start(shipPlacementConfig:ShipGridEntry[], connection:TcpClient?) : void
+    + EnemyReady() : void
+    + EndGame(won:bool) : void
+    + SetTurn(turn:bool) : void
+    - Form1_Load(sender:object, e:EventArgs) : void
+    - hideBoard_CheckedChanged(sender:object, e:EventArgs) : void
+    - ReadyBT_Click(sender:object, e:EventArgs) : void
+    - CompleteBT_Click(sender:object, e:EventArgs) : void
+    - ClearBT_Click(sender:object, e:EventArgs) : void
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+}
+@enduml

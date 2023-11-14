@@ -1,0 +1,20 @@
+@startuml
+abstract class EnemyPlayer {
+    # FieldSize : Size <<get>>
+    # FieldConfig : IEnumerable<int> <<get>>
+    # IsPlayerTurn : bool <<get>> <<set>>
+    # IsPlayerReady : bool <<get>>
+    + EnemyPlayer(_fieldHandler:FieldHandler)
+    # HitPlayer(point:Point) : HitType
+    # HitPlayer(columnIndex:int, rowIndex:int) : HitType
+    # EnemyReady() : void
+    # HoverCell(columnIndex:int, rowIndex:int) : void
+    # HoverCellEnd() : void
+    + {abstract} OnPlayerReady() : void
+    + {abstract} OnLoad() : void
+    + {abstract} OnEnemyFieldHit(point:Point) : Task<HitType>
+    + {abstract} GetNonhitShips(leftShips:IEnumerable<Point>) : Task<IEnumerable<Point>>
+    + <<virtual>> OnEnemyFieldHover(sender:object?, point:Point) : void
+    + <<virtual>> OnEnemyFieldUnHover(sender:object?, point:Point) : void
+}
+@enduml

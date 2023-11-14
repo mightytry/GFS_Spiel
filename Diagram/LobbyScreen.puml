@@ -1,0 +1,15 @@
+@startuml
+class LobbyScreen <<partial>> {
+    - isHost : bool
+    - ConnectCancel : CancellationTokenSource
+    + LobbyScreen(_isHost:bool)
+    - <<async>> LobbyScreen_Load(sender:object, e:EventArgs) : void
+    - <<async>> ConnectBT_Click(sender:object, e:EventArgs) : void
+    - callback(message:StunTools.Message) : void
+    <<internal>> OnCodeChange() : void
+    - CopyCodeBT_Click(sender:object, e:EventArgs) : void
+    - startGame() : void
+    - <<async>> StartBT_Click(sender:object, e:EventArgs) : void
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+}
+@enduml

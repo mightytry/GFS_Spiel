@@ -1,0 +1,8 @@
+@startuml
+class SelectScreen <<partial>> {
+    + SelectScreen()
+    - JoinBT_Click(sender:object, e:EventArgs) : void
+    - HostBT_Click(sender:object, e:EventArgs) : void
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+}
+@enduml

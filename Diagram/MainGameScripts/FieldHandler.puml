@@ -1,0 +1,30 @@
+@startuml
+class FieldHandler {
+    + GameEnded : bool <<get>> = false
+    + IsPlayerReady : bool <<get>> = false
+    - mouseDown : bool = false
+    - isPlayerTurn : bool
+    + FieldSize : Size <<get>>
+    + FieldConfig : IEnumerable<int> <<get>>
+    + IsPlayerTurn : bool <<get>> <<set>>
+    + FieldHandler(_playerField:Field, _enemyField:Field, _playerShipGrid:ShipGrid, _enemyShipGrid:ShipGrid, _mainGame:MainGame, connection:TcpClient?)
+    + Ready() : void
+    + PlayerShipAmountEmpty() : bool
+    + ClearFields() : void
+    - start() : void
+    + Loaded() : void
+    - playerCellHoverPress(sender:object?, e:DataGridViewCellEventArgs) : void
+    - enemyCellPress(sender:object?, e:DataGridViewCellMouseEventArgs) : void
+    - <<async>> EndGame(result:bool) : void
+    + RandomShips() : void
+    + PlayerHit(columnIndex:int, rowIndex:int) : HitType
+    <<internal>> EnemyReady() : void
+    <<internal>> HoverCellPlayer(columnIndex:int, rowIndex:int) : void
+    <<internal>> HoverCellPlayerEnd() : void
+    + PlayerShipSunken() : void
+    + EnemyShipSunken() : void
+    + ClearPlayer() : void
+    <<internal>> HidePlayerField(isChecked:bool) : void
+    <<internal>> ChangeTheme() : void
+}
+@enduml

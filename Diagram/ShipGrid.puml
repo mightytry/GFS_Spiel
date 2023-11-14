@@ -1,0 +1,36 @@
+@startuml
+class ShipGrid {
+    +  <<event>> AmountChangedEvent : AmountChangedEventHandler? 
+    + <<readonly>> Editable : bool
+    + <<readonly>> Ships : Dictionary<int, ShipGridEntry>
+    - <<readonly>> shipsGrid : DataGridView
+    + ShipGrid(_shipsGrid:DataGridView, _editable:bool)
+    + ShipAmountEmpty() : bool
+    + SetEntries(shipGridEntries:IEnumerable<ShipGridEntry>) : void
+    + UpdateAmount(links:Link[]) : void
+    + ResetAmount(amount:int?) : void
+    - mouseEnter(sender:object?, e:DataGridViewCellEventArgs) : void
+    - editEnd(sender:object?, e:DataGridViewCellEventArgs) : void
+    - mouseLeave(sender:object?, e:EventArgs) : void
+    + ResetSelection() : void
+    + GetShipsAsInt(getMissingOnly:bool) : IEnumerable<int>
+    - createShiptypeCell(name:string, length:int, amount:int) : ShipGridEntry
+    - genShips() : void
+}
+class ShipGridEntry {
+    + Name : string <<get>> <<set>>
+    + Length : int <<get>> <<set>>
+    + Amount : int <<get>> <<set>>
+    + MaxAmount : int <<get>> <<set>>
+    - name : string
+    - length : int
+    - amount : int
+    - maxAmount : int
+    - <<readonly>> entryRow : DataGridViewRow?
+    + ShipGridEntry(_name:string, _length:int, maxAmount:int, _entryRow:DataGridViewRow)
+    + Update(shipGridEntry:ShipGridEntry) : void
+    + ResetAmount(value:int?) : void
+    - updateVariable(value:object, cell:int) : void
+    - updateColor(value:int, cell:int) : void
+}
+@enduml

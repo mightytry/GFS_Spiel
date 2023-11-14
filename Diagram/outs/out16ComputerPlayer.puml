@@ -1,0 +1,592 @@
+@startuml GFS_Spiel
+
+class ComputerPlayer {
+
+    - lastTileShipSunken : bool
+
+    - random : Random
+
+    + ComputerPlayer(_fieldHandler:FieldHandler)
+
+    - hitPlayer(t:Tile) : void
+
+    + <<async>> Move() : void
+
+    + <<override>> OnPlayerReady() : void
+
+    + <<override>> OnLoad() : void
+
+    + <<override>> OnEnemyFieldHit(point:Point) : Task<HitType>
+
+    + <<override>> GetNonhitShips(leftShips:IEnumerable<Point>) : Task<IEnumerable<Point>>
+
+}
+
+EnemyPlayer <|-- ComputerPlayer
+
+abstract class EnemyPlayer {
+
+    # FieldSize : Size <<get>>
+
+    # FieldConfig : IEnumerable<int> <<get>>
+
+    # IsPlayerTurn : bool <<get>> <<set>>
+
+    # IsPlayerReady : bool <<get>>
+
+    + EnemyPlayer(_fieldHandler:FieldHandler)
+
+    # HitPlayer(point:Point) : HitType
+
+    # HitPlayer(columnIndex:int, rowIndex:int) : HitType
+
+    # EnemyReady() : void
+
+    # HoverCell(columnIndex:int, rowIndex:int) : void
+
+    # HoverCellEnd() : void
+
+    + {abstract} OnPlayerReady() : void
+
+    + {abstract} OnLoad() : void
+
+    + {abstract} OnEnemyFieldHit(point:Point) : Task<HitType>
+
+    + {abstract} GetNonhitShips(leftShips:IEnumerable<Point>) : Task<IEnumerable<Point>>
+
+    + <<virtual>> OnEnemyFieldHover(sender:object?, point:Point) : void
+
+    + <<virtual>> OnEnemyFieldUnHover(sender:object?, point:Point) : void
+
+}
+
+class NetworkPlayer {
+
+    - isEnemyReady : bool = false
+
+    + NetworkPlayer(fieldHandler:FieldHandler, _connection:TcpClient)
+
+    - callback(message:StunTools.Message) : void
+
+    - <<async>> onPointMessage(message:StunTools.Message) : Task
+
+    - <<async>> WaitHitTypeMessage() : Task<HitType?>
+
+    + <<override>> <<async>> OnEnemyFieldHit(point:Point) : Task<HitType>
+
+    + <<override>> <<async>> OnPlayerReady() : void
+
+    + <<override>> OnLoad() : void
+
+    + <<override>> <<async>> OnEnemyFieldHover(sender:object?, point:Point) : void
+
+    + <<override>> <<async>> OnEnemyFieldUnHover(sender:object?, point:Point) : void
+
+    + <<override>> <<async>> GetNonhitShips(l:IEnumerable<Point>) : Task<IEnumerable<Point>>
+
+}
+
+EnemyPlayer <|-- NetworkPlayer
+
+class Field $filds{
+
+    + FieldGrid : DataGridView <<get>>
+
+    + FieldSize : Size <<get>>
+
+    +  <<event>> HoverEvent : HoverEventHandler? 
+
+    +  <<event>> UnHoverEvent : UnHoverEventHandler? 
+
+    - cancellationTokenSource : CancellationTokenSource
+
+    + Field(dataGridView:DataGridView, size:Size?)
+
+    + CancelBlink() : void
+
+    - <<async>> blinkLastHit() : void
+
+    + DoAllowUserinput(value:bool) : void
+
+    - mouseEnter(sender:object?, e:DataGridViewCellEventArgs) : void
+
+    - mouseClick(sender:object?, e:DataGridViewCellMouseEventArgs) : void
+
+    - mouseLeave(sender:object?, e:DataGridViewCellEventArgs) : void
+
+    + AddSelection(columnIndex:int, rowIndex:int) : void
+
+    + RemoveSelection(columnIndex:int, rowIndex:int) : void
+
+    + ResetSelection() : void
+
+    - genField(sizex:int, sizey:int) : void
+
+    + Update(columnIndex:int, rowIndex:int) : bool
+
+    + ShipSunken(tile:Tile) : void
+
+    - updateColor(columnIndex:int, rowIndex:int, isShip:bool?, isSunken:bool) : void
+
+    - updateText(columnIndex:int, rowIndex:int, isHit:bool) : void
+
+    + Hit(columnIndex:int, rowIndex:int) : HitType?
+
+    + Random(ships:IEnumerable<int>, useCurrent:bool) : bool
+
+    + Clear() : void
+
+}
+
+enum HitType {
+
+    HIT,
+
+    MISS,
+
+    SUNKEN,
+
+    ENDGAME,
+
+}
+
+HitType --+ Field
+
+class FieldHandler {
+
+    + GameEnded : bool <<get>> = false
+
+    + IsPlayerReady : bool <<get>> = false
+
+    - mouseDown : bool = false
+
+    - isPlayerTurn : bool
+
+    + FieldSize : Size <<get>>
+
+    + FieldConfig : IEnumerable<int> <<get>>
+
+    + IsPlayerTurn : bool <<get>> <<set>>
+
+    + FieldHandler(_playerField:Field, _enemyField:Field, _playerShipGrid:ShipGrid, _enemyShipGrid:ShipGrid, _mainGame:MainGame, connection:TcpClient?)
+
+    + Ready() : void
+
+    + PlayerShipAmountEmpty() : bool
+
+    + ClearFields() : void
+
+    - start() : void
+
+    + Loaded() : void
+
+    - playerCellHoverPress(sender:object?, e:DataGridViewCellEventArgs) : void
+
+    - enemyCellPress(sender:object?, e:DataGridViewCellMouseEventArgs) : void
+
+    - <<async>> EndGame(result:bool) : void
+
+    + RandomShips() : void
+
+    + PlayerHit(columnIndex:int, rowIndex:int) : HitType
+
+    <<internal>> EnemyReady() : void
+
+    <<internal>> HoverCellPlayer(columnIndex:int, rowIndex:int) : void
+
+    <<internal>> HoverCellPlayerEnd() : void
+
+    + PlayerShipSunken() : void
+
+    + EnemyShipSunken() : void
+
+    + ClearPlayer() : void
+
+    <<internal>> HidePlayerField(isChecked:bool) : void
+
+    <<internal>> ChangeTheme() : void
+
+}
+
+class PlayingField {
+
+    + <<readonly>> Size : Size
+
+    + PlayingField(_size:Size)
+
+    + {static} Random(size:Size, ships:IEnumerable<int>, maxAttempts:int) : PlayingField?
+
+    + DistancesToNext(p:Point) : int[]
+
+    + GetNonhitShipTiles() : IEnumerable<Tile>
+
+    - randomEmptyTile(random:Random) : Tile?
+
+    - genTiles(size:Size) : void
+
+    + Update(columnIndex:int, rowIndex:int) : bool?
+
+    + Update(tile:Tile) : bool?
+
+    + Clone() : PlayingField
+
+    + Random(ships:IEnumerable<int>, maxAttempts:int) : PlayingField?
+
+    - TryPlaceShips(shipsRemaining:IEnumerable<int>, board:PlayingField, maxAttempts:int, random:Random) : PlayingField?
+
+    + AllShipsHit() : bool
+
+}
+
+class Tile {
+
+    + <<readonly>> Position : Point
+
+    + IsHit : bool <<get>>
+
+    + Tile(x:int, y:int, pField:PlayingField, link:Link?, isHit:bool)
+
+    + Hit() : void
+
+    + GetNeighbours() : IEnumerable<Tile>
+
+    + CountNeighbours() : int
+
+    + NeighbourLinks() : IEnumerable<Link>
+
+}
+
+class Link {
+
+    + Length : int <<get>>
+
+    + Vertical : bool? <<get>>
+
+    + IsHit : bool <<get>>
+
+    + HitCount : int <<get>>
+
+    + Link()
+
+    + Add(tile:Tile) : void
+
+    + Remove(tile:Tile) : void
+
+    - isVertical() : bool?
+
+}
+
+class LobbyScreen <<partial>> {
+
+    - isHost : bool
+
+    - ConnectCancel : CancellationTokenSource
+
+    + LobbyScreen(_isHost:bool)
+
+    - <<async>> LobbyScreen_Load(sender:object, e:EventArgs) : void
+
+    - <<async>> ConnectBT_Click(sender:object, e:EventArgs) : void
+
+    - callback(message:StunTools.Message) : void
+
+    <<internal>> OnCodeChange() : void
+
+    - CopyCodeBT_Click(sender:object, e:EventArgs) : void
+
+    - startGame() : void
+
+    - <<async>> StartBT_Click(sender:object, e:EventArgs) : void
+
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+
+}
+
+class MainGame <<partial>> {
+
+    + MainGame(connection:TcpClient?, shipPlacementConfig:ShipGridEntry[])
+
+    + Start(shipPlacementConfig:ShipGridEntry[], connection:TcpClient?) : void
+
+    + EnemyReady() : void
+
+    + EndGame(won:bool) : void
+
+    + SetTurn(turn:bool) : void
+
+    - Form1_Load(sender:object, e:EventArgs) : void
+
+    - hideBoard_CheckedChanged(sender:object, e:EventArgs) : void
+
+    - ReadyBT_Click(sender:object, e:EventArgs) : void
+
+    - CompleteBT_Click(sender:object, e:EventArgs) : void
+
+    - ClearBT_Click(sender:object, e:EventArgs) : void
+
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+
+}
+
+class Program <<static>> {
+
+    {static} - Main() : void
+
+}
+
+class Theme <<static>> {
+
+    {static} - DarkModeColors : Color[]
+
+    {static} - LightModeColors : Color[]
+
+    {static} - DarkMode : bool = true
+
+    + {static} ChangeMode() : void
+
+    + {static} IsDarkMode() : bool
+
+    + {static} GetThemeColor(type:Color) : Color
+
+    + {static} RefreshTheme(control:Control) : void
+
+}
+
+class SelectScreen <<partial>> {
+
+    + SelectScreen()
+
+    - JoinBT_Click(sender:object, e:EventArgs) : void
+
+    - HostBT_Click(sender:object, e:EventArgs) : void
+
+    - ChangeDesignBT_Click(sender:object?, e:EventArgs?) : void
+
+}
+
+class ShipGrid {
+
+    +  <<event>> AmountChangedEvent : AmountChangedEventHandler? 
+
+    + <<readonly>> Editable : bool
+
+    + <<readonly>> Ships : Dictionary<int, ShipGridEntry>
+
+    - <<readonly>> shipsGrid : DataGridView
+
+    + ShipGrid(_shipsGrid:DataGridView, _editable:bool)
+
+    + ShipAmountEmpty() : bool
+
+    + SetEntries(shipGridEntries:IEnumerable<ShipGridEntry>) : void
+
+    + UpdateAmount(links:Link[]) : void
+
+    + ResetAmount(amount:int?) : void
+
+    - mouseEnter(sender:object?, e:DataGridViewCellEventArgs) : void
+
+    - editEnd(sender:object?, e:DataGridViewCellEventArgs) : void
+
+    - mouseLeave(sender:object?, e:EventArgs) : void
+
+    + ResetSelection() : void
+
+    + GetShipsAsInt(getMissingOnly:bool) : IEnumerable<int>
+
+    - createShiptypeCell(name:string, length:int, amount:int) : ShipGridEntry
+
+    - genShips() : void
+
+}
+
+class ShipGridEntry {
+
+    + Name : string <<get>> <<set>>
+
+    + Length : int <<get>> <<set>>
+
+    + Amount : int <<get>> <<set>>
+
+    + MaxAmount : int <<get>> <<set>>
+
+    - name : string
+
+    - length : int
+
+    - amount : int
+
+    - maxAmount : int
+
+    - <<readonly>> entryRow : DataGridViewRow?
+
+    + ShipGridEntry(_name:string, _length:int, maxAmount:int, _entryRow:DataGridViewRow)
+
+    + Update(shipGridEntry:ShipGridEntry) : void
+
+    + ResetAmount(value:int?) : void
+
+    - updateVariable(value:object, cell:int) : void
+
+    - updateColor(value:int, cell:int) : void
+
+}
+
+
+
+package Network {
+
+    class TcpClient
+
+    class TcpSocket
+
+}
+
+Program --> "1" SelectScreen : use
+
+
+
+abstract class Form{}
+
+
+
+skinparam groupInheritance 3
+
+LobbyScreen     --|>    Form
+
+MainGame        --|>    Form
+
+SelectScreen    --|>    Form
+
+
+
+
+
+LobbyScreen --> "1" ShipGrid : "- shipGrid" 
+
+LobbyScreen --> "1" TcpSocket : "- Socket?"
+
+LobbyScreen -->"1" MainGame : use
+
+LobbyScreen --> Theme:use
+
+
+
+MainGame --> "1" FieldHandler :"- fieldHandler"
+
+MainGame --> "1..*" ShipGridEntry : use
+
+MainGame --> Theme:use
+
+MainGame --> "2" Field : use
+
+MainGame --> "2" ShipGrid : use
+
+ 
+
+SelectScreen --> "1" LobbyScreen:use
+
+SelectScreen --> Theme:use
+
+
+
+ShipGrid::Ships --> "1..*" ShipGridEntry
+
+
+
+TcpClient "1" <-- LobbyScreen : "- Client?"
+
+TcpClient <-- MainGame : use
+
+TcpClient <-- FieldHandler : use
+
+TcpClient <-- NetworkPlayer : "- conenction"
+
+
+
+FieldHandler --> Field : "- playerField"
+
+FieldHandler --> Field : "- enemyField"
+
+FieldHandler --> MainGame :"- maingame"
+
+FieldHandler --> ShipGrid : "- playerShipGrid"
+
+FieldHandler --> ShipGrid : "- enemyShipGrid"
+
+FieldHandler --> "1" EnemyPlayer : "- enemyPlayer"
+
+
+
+EnemyPlayer --> FieldHandler : "- <<readonly>> fieldHandler"
+
+
+
+ComputerPlayer --> "1" PlayingField : "- playerPlayingField"
+
+ComputerPlayer --> "1" PlayingField : "- enemyPlayingField"
+
+ComputerPlayer --> "1" Tile : "- lastTile"
+
+
+
+Field --> "1" PlayingField : "+ PlayingField <<get>>"
+
+Field --> "1" Tile : "- lastHitTile"
+
+Field --> Theme: use
+
+
+
+PlayingField --> "1..*" Tile : "+ Tiles <<get>>"
+
+PlayingField --> "0..*" Link : "+ <<readonly>> Links"
+
+
+
+Link --> "0..*" Tile : "+ Tiles <<get>>"
+
+
+
+Tile --> Link : "+ Link <<get>> <<set>>"
+
+Tile --> PlayingField : "- field"
+
+
+
+remove Program
+remove Theme
+remove SelectScreen
+remove Form
+remove LobbyScreen
+remove Network
+remove ShipGrid
+remove ShipGridEntry
+remove MainGame
+remove $filds
+remove HitType
+remove PlayingField
+remove Tile
+remove Link
+remove FieldHandler
+remove EnemyPlayer
+remove ComputerPlayer
+remove NetworkPlayer
+restore Program
+restore Theme
+restore SelectScreen
+restore Form
+restore LobbyScreen
+restore Network
+restore ShipGrid
+restore ShipGridEntry
+restore MainGame
+restore $filds
+restore HitType
+restore PlayingField
+restore Tile
+restore Link
+restore FieldHandler
+restore EnemyPlayer
+restore ComputerPlayer
+@enduml
