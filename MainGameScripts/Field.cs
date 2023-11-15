@@ -191,14 +191,13 @@ namespace GFS_Spiel.MainGameScripts
                 FieldGrid.Rows.Add();
 
                 FieldGrid.Rows[i].Height = FieldGrid.Size.Height / sizey;
+                FieldGrid.Rows[i].Cells[0].Value = i.ToString();
             }
 
             // Benenne die Reihen und Zahlen
             for (int i = 1; i < sizex; i++)
             {
                 FieldGrid.Rows[0].Cells[i].Value = ((char)(i + 64)).ToString();
-
-                FieldGrid.Rows[i].Cells[0].Value = i.ToString();
             }
 
             // Passe die größe des Felds auf die größe der Spalten und Reihen an
