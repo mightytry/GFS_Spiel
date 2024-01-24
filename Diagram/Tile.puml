@@ -1,3 +1,5 @@
 object Tile{
-    + <<readonly>> Position = 2
+    +Position = (4, 7)
+    +IsHit = false
+    +Link = null
 }

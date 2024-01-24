@@ -280,12 +280,5 @@ Tile --> PlayingField : "- field"
 
 
 
-hide members
-remove *
-restore EnemyPlayer
-show EnemyPlayer members
-restore NetworkPlayer
-restore ComputerPlayer
-restore FieldHandler
 
 @enduml
